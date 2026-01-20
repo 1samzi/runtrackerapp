@@ -25,7 +25,7 @@ public class Run{
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User users;
+    private User user;
 
     public Run(double distanceKM, int durationMinutes, LocalDate date, int rating){
         if (distanceKM == 0 || durationMinutes == 0 || (rating < 0 || rating > 5)){
@@ -79,5 +79,9 @@ public class Run{
             throw new IllegalArgumentException("Rating must be between 1-5");
         }
         this.rating = rating;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

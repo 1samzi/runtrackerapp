@@ -22,10 +22,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         //ensuring that get is public
                         .requestMatchers(HttpMethod.GET, "/runs").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users").permitAll()
 
                         //ensuring that all POST requests has role admin
                         .requestMatchers(HttpMethod.POST, "/runs/**").hasRole("ADMIN")
-
+                        .requestMatchers(HttpMethod.POST, "/users/**").hasRole("ADMIN")
                         //Make DELETE `/runs/{id}` admin-only.
                         .requestMatchers(HttpMethod.DELETE, "/runs/{id}").hasRole("ADMIN")
                         //all requests require authentication
