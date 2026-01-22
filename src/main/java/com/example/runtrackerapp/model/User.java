@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-//Name User is reserved in post gre
+//name "User" is reserved in post gre
 @Entity
 @Table(name = "users")
 public class User {
@@ -30,6 +30,16 @@ public class User {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public User(String username){
+        if (username == null || username.isBlank()){
+            throw new IllegalArgumentException("Username cannot be blank");
+        }
+        this.username = username;
+    }
+
+    protected User(){
+    }
 
     public Instant getCreatedAt() {
         return createdAt;
@@ -69,6 +79,10 @@ public class User {
 
     public void addRun(Run run){
         run.setUser(this);
+    }
+
+    public void addRuns(List<Run> runs){
+        runs.forEach(run -> {this.addRun(run);});
     }
 
 }

@@ -88,5 +88,7 @@ public class Run{
         this.user = user;
     }
 
-
+    public User getUser() {
+        return user;
+    }
 }
