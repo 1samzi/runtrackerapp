@@ -73,6 +73,9 @@ public class Run{
         this.durationMinutes = durationMinutes;
     }
 
+    public long getUserId(){
+        return this.user.getUser_id();
+    }
 
     public void setRating(int rating) {
         if (rating < 0 || rating > 5){
@@ -84,4 +87,6 @@ public class Run{
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }

@@ -1,6 +1,7 @@
 //Anything that doesn't do with HTTP orchestration (request/response handling) must go here
 package com.example.runtrackerapp.service;
 import com.example.runtrackerapp.model.Run;
+import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.RunRepository;
 
 import com.example.runtrackerapp.repository.RunSpecification;
@@ -24,7 +25,8 @@ public class RunService{
             Integer minRating,Integer maxRating,
             Integer maxDuration, Integer exactRating,
             LocalDate dateAfter, LocalDate dateBefore,
-            LocalDate dateOn){
+            LocalDate dateOn,
+            Long userId){
 
         Specification<Run> spec = (root, query, cb) -> cb.conjunction();
 
@@ -66,6 +68,10 @@ public class RunService{
         //Practice: "Runs on a Specific Day": Find all runs that occurred on a single, specific calendar day.
         if (dateOn != null){
             spec = spec.and(RunSpecification.dateIsOn(dateOn));
+        }
+
+        if (userId != null){
+            spec = spec.and(RunSpecification.hasUser(userId));
         }
 
         //Execute the combined specification

@@ -26,13 +26,15 @@ public class UserService {
     }
 
     public User saveUser(User user){
-        user.getRuns().forEach(user::addRun);
+        user.getRuns().forEach(run -> run.setUser(user));
         return repo.save(user);
     }
 
     public List<User> saveUsers(List<User> users){
         for (User user : users){
-            user.getRuns().forEach(user::addRun);
+            if (user.getRuns() != null){
+                user.getRuns().forEach(run -> run.setUser(user));
+            }
         }
         return repo.saveAll(users);
     }

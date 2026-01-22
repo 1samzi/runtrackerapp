@@ -68,7 +68,6 @@ public class User {
     }
 
     public void addRun(Run run){
-        runs.add(run);
         run.setUser(this);
     }
 

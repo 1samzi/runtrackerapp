@@ -1,6 +1,8 @@
 package com.example.runtrackerapp.repository;
 
 import com.example.runtrackerapp.model.Run;
+import com.example.runtrackerapp.model.User;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -61,4 +63,11 @@ public class RunSpecification {
         return ((root, query, cb) -> cb.equal(root.get("date"), dateTime));
     }
 
+    //Finding Specific users
+    public static Specification<Run> hasUser(long userId){
+        return (root, query, cb) -> {
+            Join<Run, User> userJoin = root.join("user");
+            return cb.equal(userJoin.get("user_id"), userId);
+        };
+    }
 }

@@ -46,9 +46,11 @@ public class RunController {
             @RequestParam(required = false) LocalDate dateBefore,
 
             //For date on
-            @RequestParam(required = false) LocalDate dateOn
+            @RequestParam(required = false) LocalDate dateOn,
+
+            @RequestParam (required = false) Long userId
     ) {
-        return runService.findRunsByCriteria(minDistance, maxDistance, minRating, maxRating, maxDuration, exactRating, dateAfter, dateBefore, dateOn);
+        return runService.findRunsByCriteria(minDistance, maxDistance, minRating, maxRating, maxDuration, exactRating, dateAfter, dateBefore, dateOn, userId);
     }
 
 
