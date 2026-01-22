@@ -3,6 +3,9 @@ package com.example.runtrackerapp.service;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.UserRepository;
+import com.example.runtrackerapp.repository.UserSpecification;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +18,17 @@ public class UserService {
         this.repo = repository;
     }
 
+    public List<User> findUsersByCriteria(Long userId){
+        //init specification to TRUE
+        Specification<User> spec = (root, query, cb) -> cb.conjunction();
 
-    public List<User> findUsers(){
-        return repo.findAll();
-    }
+        if (userId != null){
+            spec = spec.and(UserSpecification.hasId(userId));
+        }
 
-    //TODO add some criteria for users
-    public List<User> findUsersByCriteria(){
-        return null;
+        return repo.findAll(
+                spec,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     public User saveUser(User user){
@@ -39,5 +45,12 @@ public class UserService {
         return repo.saveAll(users);
     }
 
+    public User deleteUserById(Long id){
+        User user = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Run not found"));
+
+        repo.delete(user);
+        return user;
+    }
 
 }

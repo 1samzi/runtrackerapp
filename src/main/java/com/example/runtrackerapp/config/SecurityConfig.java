@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users/**").hasRole("ADMIN")
                         //Make DELETE `/runs/{id}` admin-only.
                         .requestMatchers(HttpMethod.DELETE, "/runs/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/{id}").hasRole("ADMIN")
                         //all requests require authentication
                         .anyRequest().authenticated()
                 )
