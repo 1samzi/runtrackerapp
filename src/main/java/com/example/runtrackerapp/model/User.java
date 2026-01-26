@@ -1,5 +1,6 @@
 package com.example.runtrackerapp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,6 +21,7 @@ public class User {
     //One to Many - A user can have many run objects
     //mappedBy User, JPA now knows the Run entity has the foreign key pointing back to User
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Run> runs = new ArrayList<>();
 
     @Column (nullable = false, unique = true)
@@ -75,6 +77,10 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setUser_id(long user_id) {
+        this.user_id = user_id;
     }
 
     public void addRun(Run run){

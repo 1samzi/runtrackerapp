@@ -32,7 +32,8 @@ public class UserService {
     }
 
     public User saveUser(User user){
-        user.getRuns().forEach(run -> run.setUser(user));
+        if (user.getRuns() != null)
+            user.getRuns().forEach(run -> run.setUser(user));
         return repo.save(user);
     }
 

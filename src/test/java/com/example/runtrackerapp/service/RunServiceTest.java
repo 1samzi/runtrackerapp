@@ -1,0 +1,99 @@
+package com.example.runtrackerapp.service;
+
+import com.example.runtrackerapp.model.Run;
+import com.example.runtrackerapp.model.User;
+
+import com.example.runtrackerapp.repository.RunRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+@ExtendWith(MockitoExtension.class)
+public class RunServiceTest {
+    @Mock
+    RunRepository runRepository;
+
+    @InjectMocks
+    RunService runService;
+
+    @Test
+    void givenNoCriteria_whenFindRunsByCriteria_ThenNoFilterApplied(){
+        // Given
+        Run run1 = new Run(1, 12, LocalDate.now(), 3);
+        Run run2 = new Run(2, 20, LocalDate.now(), 4);
+        List<Run> runRepo = Arrays.asList(run1, run2);
+
+        // When
+        when(runRepository.findAll
+                (any(Specification.class),
+                any(Sort.class)))
+                .thenReturn(runRepo);
+        var result = runService.findRunsByCriteria(null, null, null, null, null, null, null, null, null, null);
+
+        assertEquals(result, runRepo);
+        assertEquals(2, result.size());
+
+    }
+
+    @Test
+    void givenACriteria_whenFindRunsByCriteria_ThenNoFilterApplied(){
+        // Given
+        Run run1 = new Run(1, 12, LocalDate.now(), 3);
+        Run run2 = new Run(5, 20, LocalDate.now(), 4);
+        List<Run> runRepo = Stream.of(run1, run2)
+                .filter(run -> run.getDistanceKM() > 3)
+                .toList();
+
+        // When
+        when(runRepository.findAll
+                (any(Specification.class),
+                        any(Sort.class)))
+                .thenReturn(runRepo);
+        var result = runService.findRunsByCriteria(3D, null, null, null, null, null, null, null, null, null);
+
+        assertEquals(result, runRepo);
+        assertEquals(1, result.size());
+
+    }
+
+    @Test
+    void givenNoRuns_whenDeleteRunById_ThenExceptionThrown(){
+        // Given
+
+        // When
+        when(runRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> {
+            runService.deleteRunById(5L);
+        });
+        verify(runRepository, never()).delete(any(Run.class));
+    }
+
+    @Test
+    void givenARun_whenDeleteRunById_ThenRunIsDeleted(){
+        // Given
+        Run run = new Run(5, 20, LocalDate.now(), 4);
+        run.setRun_id(5L);
+        List<Run> runRepo = List.of(run);
+        // When
+        when(runRepository.findById(any(Long.class))).thenReturn(Optional.of(run));
+        var result = runService.deleteRunById(5L);
+
+        assertEquals(result, run);
+        verify(runRepository, times(1)).delete(any(Run.class));
+    }
+
+}

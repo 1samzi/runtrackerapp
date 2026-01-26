@@ -1,5 +1,6 @@
 package com.example.runtrackerapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -25,6 +26,7 @@ public class Run{
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     public Run(double distanceKM, int durationMinutes, LocalDate date, int rating){
@@ -86,6 +88,10 @@ public class Run{
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setRun_id(long run_id) {
+        this.run_id = run_id;
     }
 
     public User getUser() {
