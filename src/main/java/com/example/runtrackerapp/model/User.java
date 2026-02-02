@@ -16,7 +16,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long user_id;
+    private Long user_id;
 
     //One to Many - A user can have many run objects
     //mappedBy User, JPA now knows the Run entity has the foreign key pointing back to User
@@ -84,7 +84,15 @@ public class User {
     }
 
     public void addRun(Run run){
+        //sets foreign key
+        runs.add(run);
+        //enables cascade + orphan tracking
         run.setUser(this);
+    }
+
+    public void removeRun(Run run){
+        runs.remove(run);
+        run.setUser(null);
     }
 
     public void addRuns(List<Run> runs){
