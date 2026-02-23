@@ -31,9 +31,6 @@ public class Run{
     private User user;
 
     public Run(double distanceKM, int durationMinutes, LocalDate date, int rating){
-        if (distanceKM == 0 || durationMinutes == 0 || (rating < 0 || rating > 5)){
-            throw new IllegalArgumentException("Distance cannot be 0, duration cannot be 0, and rating must be between 1 and 5");
-        }
         this.distanceKM = distanceKM;
         this.durationMinutes = durationMinutes;
         this.date = date;
@@ -81,9 +78,6 @@ public class Run{
     }
 
     public void setRating(int rating) {
-        if (rating < 0 || rating > 5){
-            throw new IllegalArgumentException("Rating must be between 1-5");
-        }
         this.rating = rating;
     }
 

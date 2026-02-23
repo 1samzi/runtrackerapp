@@ -5,6 +5,7 @@ import com.example.runtrackerapp.dto.RunResponseDTO;
 import com.example.runtrackerapp.model.Run;
 
 import com.example.runtrackerapp.service.RunService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,7 +59,7 @@ public class RunController {
 
     //RequestBody required to send body via JSON RequestParam can be used as well with URL but not used
     @PostMapping
-    public Run createRun(@RequestBody RunCreateRequestDTO runDTO){
+    public Run createRun(@Valid @RequestBody RunCreateRequestDTO runDTO){
         return runService.saveRun(runDTO);
     }
 
@@ -66,7 +67,7 @@ public class RunController {
     //New mapping required because Spring does not know what object it will receive by looking at the endpoint itself
     //Considered ambiguous and stops
     @PostMapping("/batch")
-    public List<Run> createRuns(@RequestBody List<RunCreateRequestDTO> runsDTO){
+    public List<Run> createRuns(@Valid @RequestBody List<RunCreateRequestDTO> runsDTO){
         return runService.saveRuns(runsDTO);
     }
 
