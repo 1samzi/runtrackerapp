@@ -40,7 +40,7 @@ public class User {
         this.username = username;
     }
 
-    protected User(){
+    public User(){
     }
 
     public Instant getCreatedAt() {

@@ -1,5 +1,7 @@
 package com.example.runtrackerapp.controller;
 
+import com.example.runtrackerapp.dto.UserCreateRequestDTO;
+import com.example.runtrackerapp.dto.UserResponseDTO;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.service.UserService;
@@ -18,19 +20,19 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers(
+    public List<UserResponseDTO> getUsers(
             @RequestParam(required = false) Long userId
     ) {
         return userService.findUsersByCriteria(userId);
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user){
+    public User createUser(@RequestBody UserCreateRequestDTO user){
         return userService.saveUser(user);
     }
 
     @PostMapping("/batch")
-    public List<User> createUsers(@RequestBody List<User> users){
+    public List<User> createUsers(@RequestBody List<UserCreateRequestDTO> users){
         return userService.saveUsers(users);
     }
 

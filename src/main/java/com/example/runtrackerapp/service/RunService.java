@@ -1,10 +1,13 @@
 //Anything that doesn't do with HTTP orchestration (request/response handling) must go here
 package com.example.runtrackerapp.service;
+import com.example.runtrackerapp.dto.RunCreateRequestDTO;
+import com.example.runtrackerapp.dto.RunResponseDTO;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.RunRepository;
 
 import com.example.runtrackerapp.repository.RunSpecification;
+import com.example.runtrackerapp.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -15,12 +18,14 @@ import java.util.List;
 @Service
 public class RunService{
     private final RunRepository repo;
+    private final UserRepository userRepository;
 
-    public RunService(RunRepository repository) {
+    public RunService(RunRepository repository, UserRepository userRepository) {
         this.repo = repository;
+        this.userRepository = userRepository;
     }
 
-    public List<Run> findRunsByCriteria(
+    public List<RunResponseDTO> findRunsByCriteria(
             Double minDistance, Double maxDistance,
             Integer minRating,Integer maxRating,
             Integer maxDuration, Integer exactRating,
@@ -75,16 +80,26 @@ public class RunService{
         }
 
         //Execute the combined specification
-        return repo.findAll(
+        List<Run> runs = repo.findAll(
                 spec,
                 Sort.by(Sort.Direction.DESC, "date"));
+
+        return runs.stream()
+                .map(this::runMapperToResponseDTO)
+                .toList();
     }
 
-    public Run saveRun(Run run){
+    public Run saveRun(RunCreateRequestDTO dto){
+        Run run = runMapperToRun(dto);
         return repo.save(run);
     }
 
-    public List<Run> saveRuns(List<Run> runs){
+    public List<Run> saveRuns(List<RunCreateRequestDTO> dtos){
+
+        List<Run> runs = dtos.stream()
+                .map(this::runMapperToRun)
+                .toList();
+
         return repo.saveAll(runs);
     }
 
@@ -94,6 +109,38 @@ public class RunService{
 
         repo.delete(run);
         return run;
+    }
+
+    public Run runMapperToRun(RunCreateRequestDTO dto){
+
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(()-> new RuntimeException("User not found"));
+
+        Run run = new Run();
+        run.setDate(dto.getDate());
+        run.setRating(dto.getRating());
+        run.setDurationMinutes(dto.getDurationMinutes());
+        run.setDistanceKM(dto.getDistanceKM());
+        run.setUser(user);
+
+        return run;
+    }
+
+    public RunResponseDTO runMapperToResponseDTO(Run run){
+
+        RunResponseDTO dto = new RunResponseDTO();
+
+        dto.setId(run.getRun_id());
+        dto.setDistanceKM(run.getDistanceKM());
+        dto.setDurationMinutes(run.getDurationMinutes());
+        dto.setDate(run.getDate());
+        dto.setRating(run.getRating());
+
+        if (run.getUser() != null) {
+            dto.setUser_id(run.getUser().getUser_id());
+        }
+
+        return dto;
     }
 
 }

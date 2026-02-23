@@ -1,5 +1,7 @@
 package com.example.runtrackerapp.controller;
 
+import com.example.runtrackerapp.dto.RunCreateRequestDTO;
+import com.example.runtrackerapp.dto.RunResponseDTO;
 import com.example.runtrackerapp.model.Run;
 
 import com.example.runtrackerapp.service.RunService;
@@ -22,7 +24,7 @@ public class RunController {
 
     //allows for /runs and /runs?minDistance=value
     @GetMapping
-    public List<Run> getRuns(
+    public List<RunResponseDTO> getRuns(
             //For distance
             @RequestParam(required = false) Double minDistance,
 
@@ -56,16 +58,16 @@ public class RunController {
 
     //RequestBody required to send body via JSON RequestParam can be used as well with URL but not used
     @PostMapping
-    public Run createRun(@RequestBody Run run){
-        return runService.saveRun(run);
+    public Run createRun(@RequestBody RunCreateRequestDTO runDTO){
+        return runService.saveRun(runDTO);
     }
 
     //Batch save of runs
-    //New mapping required because Sping does not know what object it will receive by looking at the endpoint itself
+    //New mapping required because Spring does not know what object it will receive by looking at the endpoint itself
     //Considered ambiguous and stops
     @PostMapping("/batch")
-    public List<Run> createRuns(@RequestBody List<Run> runs){
-        return runService.saveRuns(runs);
+    public List<Run> createRuns(@RequestBody List<RunCreateRequestDTO> runsDTO){
+        return runService.saveRuns(runsDTO);
     }
 
     //DELETE `/runs/{id}`

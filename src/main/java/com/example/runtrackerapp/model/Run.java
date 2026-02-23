@@ -1,5 +1,6 @@
 package com.example.runtrackerapp.model;
 
+import com.example.runtrackerapp.dto.RunCreateRequestDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,7 +15,7 @@ public class Run{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long run_id;
+    private Long run_id;
 
     private double distanceKM;
 

@@ -1,8 +1,14 @@
 package com.example.runtrackerapp.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
-public class UserRequestDTO {
+@Setter
+@Getter
+public class UserCreateRequestDTO {
     private String username;
-    private List<RunRequestDTO> runs;
+    private List<RunCreateRequestDTO> runs;
+
 }
