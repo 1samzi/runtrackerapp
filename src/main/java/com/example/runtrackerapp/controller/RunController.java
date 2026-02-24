@@ -2,6 +2,8 @@ package com.example.runtrackerapp.controller;
 
 import com.example.runtrackerapp.dto.RunCreateRequestDTO;
 import com.example.runtrackerapp.dto.RunResponseDTO;
+import com.example.runtrackerapp.dto.UserResponseDTO;
+import com.example.runtrackerapp.mapper.RunMapper;
 import com.example.runtrackerapp.model.Run;
 
 import com.example.runtrackerapp.service.RunService;
@@ -18,9 +20,11 @@ import java.util.List;
 public class RunController {
 
     private final RunService runService;
+    private final RunMapper runMapper;
 
-    public RunController(RunService runService) {
+    public RunController(RunService runService, RunMapper runMapper) {
         this.runService = runService;
+        this.runMapper = runMapper;
     }
 
     //allows for /runs and /runs?minDistance=value
@@ -73,9 +77,10 @@ public class RunController {
 
     //DELETE `/runs/{id}`
     @DeleteMapping("/{id}")
-    public ResponseEntity<Run> deleteRun(@PathVariable Long id){
+    public ResponseEntity<RunResponseDTO> deleteRun(@PathVariable Long id){
         Run deletedRun = runService.deleteRunById(id);
-        return ResponseEntity.ok(deletedRun);
+        RunResponseDTO dto = runMapper.runMapperToResponseDTO(deletedRun);
+        return ResponseEntity.ok(dto);
     }
 
 }

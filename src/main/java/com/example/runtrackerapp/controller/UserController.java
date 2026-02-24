@@ -2,6 +2,7 @@ package com.example.runtrackerapp.controller;
 
 import com.example.runtrackerapp.dto.UserCreateRequestDTO;
 import com.example.runtrackerapp.dto.UserResponseDTO;
+import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.service.UserService;
@@ -14,9 +15,11 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService, UserMapper userMapper){
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping
@@ -37,9 +40,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<User> deleteUser (@PathVariable Long id){
+    public ResponseEntity<UserResponseDTO> deleteUser (@PathVariable Long id){
         User deletedUser = userService.deleteUserById(id);
-        return ResponseEntity.ok(deletedUser);
+        UserResponseDTO dto = userMapper.mapUserToUserResponseDTO(deletedUser);
+        return ResponseEntity.ok(dto);
     }
 
 }
