@@ -43,7 +43,7 @@ Framework: Spring Boot
 
 Database: JPA / Hibernate (configurable)
 
-Build Tool: Maven
+Build Tool: Gradle (build.grade, gradlew)
 
 Testing: JUnit / Spring Test
 
@@ -55,7 +55,7 @@ Before running this project, make sure you have:
 
 Java 17+ (or your project’s version)
 
-Maven
+Gradle
 
 A configured local database (MySQL/PostgreSQL/H2, depending on setup)
 
