@@ -1,5 +1,10 @@
-package java.com.example.runtrackerapp.service;
+package com.example.runtrackerapp.service;
 
+import com.example.runtrackerapp.dto.RunFilter;
+import com.example.runtrackerapp.dto.RunResponseDTO;
+import com.example.runtrackerapp.dto.UserFilter;
+import com.example.runtrackerapp.dto.UserResponseDTO;
+import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.Run;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -15,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import static org.mockito.Mockito.*;
@@ -28,6 +33,9 @@ public class UserServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    UserMapper userMapper;
 
     @InjectMocks
     UserService userService;
@@ -58,17 +66,32 @@ public class UserServiceTest {
         User user2 = new User ("Mary");
         List<User> repoUsers = Arrays.asList(user1, user2);
 
+        Page<User> page = new PageImpl<>(repoUsers);
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        UserFilter filter = new UserFilter(); //no filters applied > no setters
+
         //When (findAll is called with any Specification and any Sort, then return this result.)
+        //mock repo
         when(userRepository.findAll(
                 any(Specification.class),
-                any(Sort.class)
-        )).thenReturn(repoUsers);
+                any(Pageable.class)
+        )).thenReturn(page);
+        //mock mapper
+        when(userMapper.mapUserToUserResponseDTO(any(User.class)))
+                .thenAnswer(inv -> {
+                    User user = inv.getArgument(0);
 
-        List<User> result = userService.findUsersByCriteria(null);
+                    UserResponseDTO dto = new UserResponseDTO();
+                    dto.setUsername(user.getUsername());
+
+                    return dto;
+                });
+        Page<UserResponseDTO> result = userService.findUsersByCriteria(filter, pageable);
 
         //Then
-        assertEquals(2, result.size());
-        assertEquals(repoUsers, result);
+        assertEquals(2, result.getTotalElements());
     }
     @Test
     void givenCriteria_WhenFindUsersByCriteria_ThenFilteringApplied(){
@@ -77,16 +100,41 @@ public class UserServiceTest {
         user1.setUser_id(1);
         User user2 = new User ("Mary");
         user2.setUser_id(2);
+
         List<User> repoFilteredUsers = Stream.of(user1, user2)
                 .filter(user -> user.getUser_id() == 1)
                 .toList();
+        Page<User> page = new PageImpl<>(repoFilteredUsers);
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        UserFilter filter = new UserFilter(); //filters applied
+        filter.setUserId(1L);
+
         //When (findAll is called with any Specification and any Sort, then return this result.)
-        when(userRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(repoFilteredUsers);
-        List<User> result = userService.findUsersByCriteria(1L);
+        //mock repo
+        when(userRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        )).thenReturn(page);
+        //mock mapper
+        when(userMapper.mapUserToUserResponseDTO(any(User.class)))
+                .thenAnswer(inv -> {
+                    User user = inv.getArgument(0);
+
+                    UserResponseDTO dto = new UserResponseDTO();
+                    dto.setUsername(user.getUsername());
+                    dto.setUser_id(user.getUser_id());
+                    return dto;
+                });
+        Page<UserResponseDTO> result = userService.findUsersByCriteria(filter, pageable);
 
         //Then
-        assertEquals(result, repoFilteredUsers);
-        assertEquals(1, result.size());
+        assertEquals(1, result.getTotalElements());
+
+        UserResponseDTO dto = result.getContent().getFirst();
+        verify(userRepository)
+                .findAll(any(Specification.class), eq(pageable));
     }
 
     @Test

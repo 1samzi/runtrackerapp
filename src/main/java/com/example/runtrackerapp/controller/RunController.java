@@ -1,18 +1,16 @@
 package com.example.runtrackerapp.controller;
 
-import com.example.runtrackerapp.dto.RunCreateRequestDTO;
-import com.example.runtrackerapp.dto.RunResponseDTO;
-import com.example.runtrackerapp.dto.UserResponseDTO;
+import com.example.runtrackerapp.dto.*;
 import com.example.runtrackerapp.mapper.RunMapper;
 import com.example.runtrackerapp.model.Run;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.example.runtrackerapp.service.RunService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,35 +27,11 @@ public class RunController {
 
     //allows for /runs and /runs?minDistance=value
     @GetMapping
-    public List<RunResponseDTO> getRuns(
-            //For distance
-            @RequestParam(required = false) Double minDistance,
-
-            @RequestParam(required = false) Double maxDistance,
-
-            //For runs that meet min rating
-            @RequestParam(required = false) Integer minRating,
-
-            @RequestParam(required = false) Integer maxRating,
-
-            //For duration
-            @RequestParam(required = false) Integer maxDuration,
-
-            //Rating
-            @RequestParam(required = false) Integer exactRating,
-
-            //For dateAfter
-            @RequestParam(required = false) LocalDate dateAfter,
-
-            //For dateBefore
-            @RequestParam(required = false) LocalDate dateBefore,
-
-            //For date on
-            @RequestParam(required = false) LocalDate dateOn,
-
-            @RequestParam (required = false) Long userId
+    public Page<RunResponseDTO> getRuns(
+            @Valid RunFilter filter,
+            Pageable pageable
     ) {
-        return runService.findRunsByCriteria(minDistance, maxDistance, minRating, maxRating, maxDuration, exactRating, dateAfter, dateBefore, dateOn, userId);
+        return runService.findRunsByCriteria(filter, pageable);
     }
 
 
@@ -74,6 +48,27 @@ public class RunController {
     public List<Run> createRuns(@Valid @RequestBody List<RunCreateRequestDTO> runsDTO){
         return runService.saveRuns(runsDTO);
     }
+
+    @PutMapping ("/{id}")
+    public ResponseEntity<RunResponseDTO> putRun(
+            @PathVariable Long id,
+            @RequestBody RunUpdateRequestDTO dto){
+        Run run = runService.putRun(id, dto);
+        RunResponseDTO response = runMapper.runMapperToResponseDTO(run);
+        return ResponseEntity.ok(response);
+
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity <RunResponseDTO> patchRun(
+            @PathVariable Long id,
+            @RequestBody RunUpdateRequestDTO dto
+    ){
+        Run run = runService.patchRun(id, dto);
+        RunResponseDTO response = runMapper.runMapperToResponseDTO(run);
+        return ResponseEntity.ok(response);
+    }
+
 
     //DELETE `/runs/{id}`
     @DeleteMapping("/{id}")

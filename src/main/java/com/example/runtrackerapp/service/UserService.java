@@ -1,16 +1,19 @@
 package com.example.runtrackerapp.service;
 
 import com.example.runtrackerapp.dto.UserCreateRequestDTO;
+import com.example.runtrackerapp.dto.UserFilter;
 import com.example.runtrackerapp.dto.UserResponseDTO;
+import com.example.runtrackerapp.dto.UserUpdateRequestDTO;
 import com.example.runtrackerapp.exception.ResourceNotFoundException;
 import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.UserRepository;
 import com.example.runtrackerapp.repository.UserSpecification;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -23,18 +26,18 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public List<UserResponseDTO> findUsersByCriteria(Long userId){
+    public Page<UserResponseDTO> findUsersByCriteria(UserFilter filter, Pageable pageable){
         //init specification to TRUE
         Specification<User> spec = (root, query, cb) -> cb.conjunction();
 
-        if (userId != null){
-            spec = spec.and(UserSpecification.hasId(userId));
+        if (filter.getUserId() != null){
+            spec = spec.and(UserSpecification.hasId(filter.getUserId()));
+        }
+        if (filter.getUsername() != null){
+            spec = spec.and(UserSpecification.hasUsername(filter.getUsername()));
         }
 
-        List<User> users = repo.findAll(
-                spec,
-                Sort.by(Sort.Direction.DESC, "createdAt"));
-        return users.stream().map(userMapper::mapUserToUserResponseDTO).toList();
+        return repo.findAll(spec, pageable).map(userMapper::mapUserToUserResponseDTO);
     }
 
     public User saveUser(UserCreateRequestDTO dto){
@@ -48,6 +51,27 @@ public class UserService {
                 .toList();
         return repo.saveAll(users);
     }
+
+    public User updateUser(Long id, UserUpdateRequestDTO dto){
+        User user = repo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found (id): " + id));
+
+        user.setUsername(dto.getUsername());
+
+        return repo.save(user);
+    }
+
+    public User patchUser(Long id, UserUpdateRequestDTO dto){
+        User user = repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found (id): " + id));
+
+        if (dto.getUsername() != null){
+            user.setUsername(dto.getUsername());
+        }
+
+        return repo.save(user);
+    }
+
 
     public User deleteUserById(Long id){
         User userToDelete = repo.findById(id)

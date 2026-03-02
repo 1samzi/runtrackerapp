@@ -1,5 +1,8 @@
 package com.example.runtrackerapp.service;
 
+import com.example.runtrackerapp.dto.RunFilter;
+import com.example.runtrackerapp.dto.RunResponseDTO;
+import com.example.runtrackerapp.mapper.RunMapper;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 
@@ -9,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -23,8 +26,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RunServiceTest {
+    //If it’s injected in the constructor > mock it.
+    //Could add userRepo to test if attached user loses specified run but lazy :D
     @Mock
     RunRepository runRepository;
+
+    @Mock
+    private RunMapper runMapper;
 
     @InjectMocks
     RunService runService;
@@ -33,18 +41,41 @@ public class RunServiceTest {
     void givenNoCriteria_whenFindRunsByCriteria_ThenNoFilterApplied(){
         // Given
         Run run1 = new Run(1, 12, LocalDate.now(), 3);
-        Run run2 = new Run(2, 20, LocalDate.now(), 4);
-        List<Run> runRepo = Arrays.asList(run1, run2);
+        Run run2 = new Run(5, 20, LocalDate.now(), 4);
+
+        List<Run> runRepo = List.of(run1, run2); // no criteria applied
+
+        Page<Run> page = new PageImpl<>(runRepo);
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        RunFilter filter = new RunFilter();
 
         // When
-        when(runRepository.findAll
-                (any(Specification.class),
-                any(Sort.class)))
-                .thenReturn(runRepo);
-        var result = runService.findRunsByCriteria(null, null, null, null, null, null, null, null, null, null);
+        //Mock repo
+        when(runRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        )).thenReturn(page);
+        //Mock mapper
+        when(runMapper.runMapperToResponseDTO(any(Run.class)))
+                .thenAnswer(inv -> {
+                    Run r = inv.getArgument(0);
 
-        assertEquals(result, runRepo);
-        assertEquals(2, result.size());
+                    RunResponseDTO dto = new RunResponseDTO();
+                    dto.setDistanceKM(r.getDistanceKM());
+
+                    return dto;
+                });
+
+        Page<RunResponseDTO> result =
+                runService.findRunsByCriteria(filter, pageable);
+
+        // Then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+
 
     }
 
@@ -53,19 +84,38 @@ public class RunServiceTest {
         // Given
         Run run1 = new Run(1, 12, LocalDate.now(), 3);
         Run run2 = new Run(5, 20, LocalDate.now(), 4);
-        List<Run> runRepo = Stream.of(run1, run2)
+        List<Run> filteredRuns = Stream.of(run1, run2)
                 .filter(run -> run.getDistanceKM() > 3)
                 .toList();
 
-        // When
-        when(runRepository.findAll
-                (any(Specification.class),
-                        any(Sort.class)))
-                .thenReturn(runRepo);
-        var result = runService.findRunsByCriteria(3D, null, null, null, null, null, null, null, null, null);
+        Page<Run> page = new PageImpl<>(filteredRuns);
 
-        assertEquals(result, runRepo);
-        assertEquals(1, result.size());
+        Pageable pageable = PageRequest.of(0, 10);
+
+        RunFilter filter = new RunFilter(); //filters applied, must set
+        filter.setMinDistance(3D);
+
+        // When
+        // Mock repo
+        when(runRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        )).thenReturn(page);
+        // Mock mapper
+        when(runMapper.runMapperToResponseDTO(any(Run.class)))
+                .thenAnswer(inv -> {
+                    Run r = inv.getArgument(0);
+
+                    RunResponseDTO dto = new RunResponseDTO();
+                    dto.setDistanceKM(r.getDistanceKM());
+
+                    return dto;
+                });
+        var result = runService.findRunsByCriteria(filter, pageable);
+
+        assertEquals(1, result.getTotalElements());
+        RunResponseDTO dto = result.getContent().getFirst();
+        assertTrue(dto.getDistanceKM() > 3);
 
     }
 
