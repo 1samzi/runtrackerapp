@@ -1,20 +1,22 @@
 //Anything that doesn't do with HTTP orchestration (request/response handling) must go here
 package com.example.runtrackerapp.service;
 import com.example.runtrackerapp.dto.RunCreateRequestDTO;
+import com.example.runtrackerapp.dto.RunFilter;
 import com.example.runtrackerapp.dto.RunResponseDTO;
+import com.example.runtrackerapp.dto.RunUpdateRequestDTO;
 import com.example.runtrackerapp.exception.ResourceNotFoundException;
 import com.example.runtrackerapp.mapper.RunMapper;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.RunRepository;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.example.runtrackerapp.repository.RunSpecification;
 import com.example.runtrackerapp.repository.UserRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,73 +33,65 @@ public class RunService{
         this.runMapper = runMapper;
     }
 
-    public List<RunResponseDTO> findRunsByCriteria(
-            Double minDistance, Double maxDistance,
-            Integer minRating,Integer maxRating,
-            Integer maxDuration, Integer exactRating,
-            LocalDate dateAfter, LocalDate dateBefore,
-            LocalDate dateOn,
-            Long userId){
+    public Page<RunResponseDTO> findRunsByCriteria(
+            RunFilter filter,
+            Pageable pageable){
 
         Specification<Run> spec = (root, query, cb) -> cb.conjunction();
 
-        if (minDistance != null) {
-            spec = spec.and(RunSpecification.distanceGreaterThanOrEqual(minDistance));
+        if (filter.getMinDistance() != null) {
+            spec = spec.and(RunSpecification.distanceGreaterThanOrEqual(filter.getMinDistance()));
         }
         //Practice: Find all runs that are both shorter than a given duration (in minutes) and less than a certain distance (in km).
         //aka "short and easy run"
-        if (maxDistance != null) {
-            spec = spec.and(RunSpecification.distanceLessThanOrEqual(maxDistance));
+        if (filter.getMaxDistance() != null) {
+            spec = spec.and(RunSpecification.distanceLessThanOrEqual(filter.getMaxDistance()));
         }
 
-        if (minRating != null) {
-            spec = spec.and(RunSpecification.ratingIsGreaterThanOrEqual(minRating));
+        if (filter.getMinRating() != null) {
+            spec = spec.and(RunSpecification.ratingIsGreaterThanOrEqual(filter.getMinRating()));
         }
 
-        if (maxRating != null) {
-            spec = spec.and(RunSpecification.ratingIsGreaterLessThanOrEqual(maxRating));
+        if (filter.getMaxRating() != null) {
+            spec = spec.and(RunSpecification.ratingIsGreaterLessThanOrEqual(filter.getMaxRating()));
         }
 
 
-        if (maxDuration != null) {
-            spec = spec.and(RunSpecification.durationLessThan(maxDuration));
+        if (filter.getMaxDuration() != null) {
+            spec = spec.and(RunSpecification.durationLessThan(filter.getMaxDuration()));
 
         }
 
-        if (exactRating != null) {
-            spec = spec.and(RunSpecification.hasRating(exactRating));
+        if (filter.getExactRating() != null) {
+            spec = spec.and(RunSpecification.hasRating(filter.getExactRating()));
         }
 
-        if (dateAfter != null) {
-            spec = spec.and(RunSpecification.dateIsAfter(dateAfter));
+        if (filter.getDateAfter() != null) {
+            spec = spec.and(RunSpecification.dateIsAfter(filter.getDateAfter() ));
         }
 
-        if (dateBefore != null) {
-            spec = spec.and(RunSpecification.dateIsBefore(dateBefore));
+        if (filter.getDateBefore() != null) {
+            spec = spec.and(RunSpecification.dateIsBefore(filter.getDateBefore()));
         }
 
         //Practice: "Runs on a Specific Day": Find all runs that occurred on a single, specific calendar day.
-        if (dateOn != null){
-            spec = spec.and(RunSpecification.dateIsOn(dateOn));
+        if (filter.getDateOn() != null){
+            spec = spec.and(RunSpecification.dateIsOn(filter.getDateOn()));
         }
 
-        if (userId != null){
-            if (!userRepository.existsById(userId)){
+        if (filter.getUserId() != null){
+            if (!userRepository.existsById(filter.getUserId())){
                 throw new ResourceNotFoundException(
-                        "User not found (No user with id): " + userId
+                        "User not found (No user with id): " + filter.getUserId()
                 );
             }
-            spec = spec.and(RunSpecification.hasUser(userId));
+            spec = spec.and(RunSpecification.hasUser(filter.getUserId()));
         }
 
         //Execute the combined specification
-        List<Run> runs = repo.findAll(
-                spec,
-                Sort.by(Sort.Direction.DESC, "date"));
+        return repo.findAll(spec, pageable).map(runMapper::runMapperToResponseDTO);
 
-        return runs.stream()
-                .map(runMapper::runMapperToResponseDTO)
-                .toList();
+
     }
 
     public Run saveRun(RunCreateRequestDTO dto){
@@ -121,6 +115,37 @@ public class RunService{
         }
         return repo.saveAll(runs);
     }
+
+    public Run putRun(Long id, RunUpdateRequestDTO dto){
+        Run runToUpdate = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Run not found (id): " + id));
+
+        runToUpdate.setDistanceKM(dto.getDistanceKM());
+        runToUpdate.setDurationMinutes(dto.getDurationMinutes());
+        runToUpdate.setRating(dto.getRating());
+
+        return repo.save(runToUpdate);
+    }
+
+    public Run patchRun(Long id, RunUpdateRequestDTO dto){
+        Run runToUpdate= repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Run not found (id): " + id));
+        if (dto.getDistanceKM() != null){
+            runToUpdate.setDistanceKM(dto.getDistanceKM());
+        }
+
+        if (dto.getDurationMinutes() != null){
+            runToUpdate.setDurationMinutes(dto.getDurationMinutes());
+        }
+
+        if (dto.getRating() != null){
+            runToUpdate.setRating(dto.getRating());
+        }
+
+        return repo.save(runToUpdate);
+
+    }
+
 
     public Run deleteRunById(Long id){
         Run runToDelete = repo.findById(id).orElseThrow(

@@ -8,4 +8,7 @@ public class UserSpecification {
     public static Specification<User> hasId(Long userId) {
         return (root, query, cb) -> cb.equal(root.get("user_id"), userId);
     }
+    public static Specification<User> hasUsername(String username){
+        return ((root, query, cb) -> cb.equal(root.get("username"), username));
+    }
 }
