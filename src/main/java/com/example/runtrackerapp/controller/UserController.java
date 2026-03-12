@@ -1,9 +1,6 @@
 package com.example.runtrackerapp.controller;
 
-import com.example.runtrackerapp.dto.UserCreateRequestDTO;
-import com.example.runtrackerapp.dto.UserFilter;
-import com.example.runtrackerapp.dto.UserResponseDTO;
-import com.example.runtrackerapp.dto.UserUpdateRequestDTO;
+import com.example.runtrackerapp.dto.*;
 import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
@@ -32,6 +29,12 @@ public class UserController {
             Pageable pageable
     ) {
         return userService.findUsersByCriteria(filter, pageable);
+    }
+
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<UserStatsResponseDTO> getUserStats(@PathVariable Long id) {
+        UserStatsResponseDTO stats = userService.getUserStats(id);
+        return ResponseEntity.ok(stats);
     }
 
     @PostMapping

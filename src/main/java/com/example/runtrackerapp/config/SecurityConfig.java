@@ -21,8 +21,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // disable for APIs
                 .authorizeHttpRequests(auth -> auth
                         //ensuring that get is public
-                        .requestMatchers(HttpMethod.GET, "/runs").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/runs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
 
                         //ensuring that all POST requests has role admin
                         .requestMatchers(HttpMethod.POST, "/runs/**").hasRole("ADMIN")
