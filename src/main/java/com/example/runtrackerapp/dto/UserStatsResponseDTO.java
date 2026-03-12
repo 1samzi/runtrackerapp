@@ -11,11 +11,8 @@ import java.math.BigDecimal;
 public class UserStatsResponseDTO {
     private Long userId;
     private int totalRuns;
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "#.00")
     private double totalDistance;
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "#.00")
     private double averageDistance;
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "#.00")
     private double averagePace;
     private Run longestRun;
 }
