@@ -1,5 +1,5 @@
 RunTracker is a REST API built with Java and Spring Boot for tracking running activities.
-The project focuses on learning and applying backend concepts such as API design, database integration, authentication, and automated testing.
+The project focuses on learning and applying backend concepts such as API design that supports pagination, filtering, batch operations, and partial updates (PATCH), database integration, authentication, and automated testing.
 
 This project is currently in active development and is now moving into integration with a Discord bot.
 
@@ -50,20 +50,53 @@ Add required headers and body
 
 Send the request
 
-Authentication may be required depending on the endpoint.
 
-📘 Example Endpoints
+## Example Endpoints
 
-Actual endpoints may change as development continues.
+### 👤 User Endpoints
 
-Method	Endpoint	Description
-GET	http://localhost:8080/runs
-	Get all runs
-POST	http://localhost:8080/runs
-	Create a new run
-GET	http://localhost:8080/runs/{id}
-	Get run by ID
-PUT	http://localhost:8080/runs/{id}
-	Update run
-DELETE	http://localhost:8080/runs/{id}
-	Delete run
+#### Get Users (with filtering & pagination)
+GET http://localhost:8080/users
+
+Optional query params:
+GET /users?page=0&size=10
+
+---
+
+#### Get User Stats
+GET http://localhost:8080/users/{id}/stats
+
+---
+
+#### Create User
+POST http://localhost:8080/users
+
+Example body:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+## 🏃 Run Endpoints
+
+#### Get Runs (with filtering & pagination)
+GET http://localhost:8080/runs
+
+Example with filter:
+GET /runs?minDistance=5&page=0&size=10
+
+---
+
+#### Create Run
+POST http://localhost:8080/runs
+
+Example body:
+```json
+{
+  "distance": 5.0,
+  "duration": 30,
+  "date": "2026-04-14"
+}
+```
+
