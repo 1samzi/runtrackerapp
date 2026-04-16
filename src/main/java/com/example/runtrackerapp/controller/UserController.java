@@ -4,6 +4,7 @@ import com.example.runtrackerapp.dto.*;
 import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
+import com.example.runtrackerapp.service.DiscordUserLinkService;
 import com.example.runtrackerapp.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

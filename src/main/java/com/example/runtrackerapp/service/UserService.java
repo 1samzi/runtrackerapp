@@ -67,7 +67,8 @@ public class UserService {
         double avgDistance = totalRuns == 0 ? 0 : totalDistance / totalRuns;
 
         double avgPace = totalTimeHours == 0 ? 0 : totalDistance / totalTimeHours;
-
+        avgPace = Math.round(avgPace * 100.0) / 100.0;
+        
         UserStatsResponseDTO dto = new UserStatsResponseDTO();
         dto.setUserId(id);
         dto.setTotalRuns(totalRuns);
