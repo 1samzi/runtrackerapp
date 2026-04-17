@@ -23,7 +23,7 @@ public class SecurityConfig {
                         //ensuring that get is public
                         .requestMatchers(HttpMethod.GET, "/runs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
-
+                        .requestMatchers("/bot/**").permitAll()
                         //ensuring that all POST requests has role admin
                         .requestMatchers(HttpMethod.POST, "/runs/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/users/**").hasRole("ADMIN")
