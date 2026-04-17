@@ -38,3 +38,4 @@ out/
 .vscode/
 node_modules/
 discord-bot/node_modules/
+.env
