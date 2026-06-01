@@ -22,7 +22,16 @@ public class DiscordUserLinkController {
             @RequestHeader("X-BOT-KEY") String botKey,
             @RequestBody UserCreateRequestDTO dto
     ) {
-        return ResponseEntity.ok(discordUserLinkService.register(discordId, botKey, dto));
+        return createUserFromDiscord(discordId, botKey, dto);
+    }
+
+    @PostMapping("/create-user")
+    public ResponseEntity<?> createUserFromDiscord(
+            @RequestHeader("X-DISCORD-ID") String discordId,
+            @RequestHeader("X-BOT-KEY") String botKey,
+            @RequestBody UserCreateRequestDTO dto
+    ) {
+        return ResponseEntity.ok(discordUserLinkService.createUserFromDiscord(discordId, botKey, dto));
     }
 
     @PostMapping("/link-existing")

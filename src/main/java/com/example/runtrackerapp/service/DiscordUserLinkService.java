@@ -70,6 +70,10 @@ public class DiscordUserLinkService {
     }
 
     public UserResponseDTO register(String discordId, String providedBotApiKey, UserCreateRequestDTO dto) {
+        return createUserFromDiscord(discordId, providedBotApiKey, dto);
+    }
+
+    public UserResponseDTO createUserFromDiscord(String discordId, String providedBotApiKey, UserCreateRequestDTO dto) {
         validateBotApiKey(providedBotApiKey);
         if (isLinked(discordId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Discord account already linked");

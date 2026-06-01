@@ -38,30 +38,11 @@ client.on("messageCreate", async (message) => {
     }
 
     if (msg.startsWith("!register")) {
-        try {
-            const username = message.content.replace("!register", "").trim();
+        await createUserFromDiscord(message, "!register");
+    }
 
-            if (!username) {
-                message.reply("Usage: `!register <username>`");
-                return;
-            }
-
-            const res = await axios.post(
-                `${process.env.API_URL}/bot/register`,
-                { username },
-                {
-                    headers: {
-                        "X-DISCORD-ID": message.author.id,
-                        "X-BOT-KEY": process.env.BOT_API_KEY
-                    }
-                }
-            );
-
-            message.reply(`✅ Registered and linked to user: ${res.data.username}`);
-        } catch (error) {
-            const apiMessage = error?.response?.data?.message;
-            message.reply(`Could not register. ${apiMessage || ""}`.trim());
-        }
+    if (msg.startsWith("!createuser")) {
+        await createUserFromDiscord(message, "!createuser");
     }
 
     if (msg.startsWith("!link")) {
@@ -123,6 +104,36 @@ client.on("messageCreate", async (message) => {
     }
 
 });
+
+async function createUserFromDiscord(message, command) {
+    try {
+        const username = message.content.slice(command.length).trim();
+
+        if (!username) {
+            message.reply(`Usage: \`${command} <username>\``);
+            return;
+        }
+
+        const res = await axios.post(
+            `${process.env.API_URL}/bot/create-user`,
+            { username },
+            {
+                headers: {
+                    "X-DISCORD-ID": message.author.id,
+                    "X-BOT-KEY": process.env.BOT_API_KEY
+                }
+            }
+        );
+
+        message.reply(
+            `✅ Created and linked user: ${res.data.username} (account id: ${res.data.user_id}). ` +
+            `Save this id so you can link other Discord accounts with \`!link ${res.data.user_id}\`.`
+        );
+    } catch (error) {
+        const apiMessage = error?.response?.data?.message;
+        message.reply(`Could not create user. ${apiMessage || ""}`.trim());
+    }
+}
 
 async function unlinkUser(message) {
     try {

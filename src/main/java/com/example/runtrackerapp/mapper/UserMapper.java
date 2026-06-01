@@ -6,6 +6,7 @@ import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 @Component
 public class UserMapper {
@@ -18,8 +19,9 @@ public class UserMapper {
         User user = new User();
 
         user.setUsername(dto.getUsername());
-
-        List<Run> runs = dto.getRuns().stream()
+        List<Run> runs = dto.getRuns() == null
+                ? Collections.emptyList()
+                : dto.getRuns().stream()
                 .map(runMapper::runMapperToRun)
                 .toList();
 
