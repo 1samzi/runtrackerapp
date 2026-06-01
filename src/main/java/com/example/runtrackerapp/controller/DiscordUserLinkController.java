@@ -41,4 +41,12 @@ public class DiscordUserLinkController {
     ) {
         return ResponseEntity.ok(discordUserLinkService.getLinkedUserStats(discordId, botKey));
     }
+
+    @DeleteMapping("/unlink")
+    public ResponseEntity<?> unlinkDiscordAccount(
+            @RequestHeader("X-DISCORD-ID") String discordId,
+            @RequestHeader("X-BOT-KEY") String botKey
+    ) {
+        return ResponseEntity.ok(discordUserLinkService.unlinkUser(discordId, botKey));
+    }
 }

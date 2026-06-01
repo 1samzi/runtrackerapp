@@ -118,7 +118,30 @@ client.on("messageCreate", async (message) => {
         }
     }
 
+    if (msg === "!unlink") {
+        await unlinkUser(message);
+    }
+
 });
+
+async function unlinkUser(message) {
+    try {
+        await axios.delete(
+            `${process.env.API_URL}/bot/unlink`,
+            {
+                headers: {
+                    "X-DISCORD-ID": message.author.id,
+                    "X-BOT-KEY": process.env.BOT_API_KEY
+                }
+            }
+        );
+
+        message.reply("✅ Your Discord account has been unlinked.");
+    } catch (error) {
+        const apiMessage = error?.response?.data?.message;
+        message.reply(`⚠️ Could not unlink account. ${apiMessage || ""}`.trim());
+    }
+}
 
 // Login
 client.login(process.env.DISCORD_TOKEN);

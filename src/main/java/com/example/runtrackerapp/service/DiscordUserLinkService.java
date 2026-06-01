@@ -8,12 +8,14 @@ import com.example.runtrackerapp.model.DiscordUserLink;
 import com.example.runtrackerapp.model.User;
 import com.example.runtrackerapp.repository.UserRepository;
 import com.example.runtrackerapp.repository.DiscordUserLinkRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 public class DiscordUserLinkService {
@@ -43,6 +45,18 @@ public class DiscordUserLinkService {
         link.setUser(user);
         link.setCreatedAt(LocalDateTime.now());
         repo.save(link);
+    }
+
+    @Transactional
+    public Map<String, String> unlinkUser(String discordId, String providedBotApiKey) {
+        validateBotApiKey(providedBotApiKey);
+
+        long deletedCount = repo.deleteByDiscordUserId(discordId);
+        if (deletedCount == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Discord account not linked");
+        }
+
+        return Map.of("message", "Discord account unlinked");
     }
 
     public User getUserFromDiscordId(String discordId) {
@@ -89,4 +103,7 @@ public class DiscordUserLinkService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid bot key");
         }
     }
+
+
+
 }

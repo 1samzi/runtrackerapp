@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface DiscordUserLinkRepository extends JpaRepository<DiscordUserLink, Long> {
     Optional<DiscordUserLink> findByDiscordUserId(String discordUserId);
+    long deleteByDiscordUserId(String discordUserId);
 }
