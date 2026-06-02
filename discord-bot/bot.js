@@ -86,12 +86,24 @@ client.on("messageCreate", async (message) => {
 
             const stats = res.data;
 
+            const latestWeek = stats.weeklyStats?.[0];
+            const latestMonth = stats.monthlyStats?.[0];
+            const latestYear = stats.yearlyStats?.[0];
+
             message.reply(
                 `Stats\n` +
                 `Total Runs: ${stats.totalRuns}\n` +
                 `Total Distance: ${stats.totalDistance} km\n` +
-                `Avg Pace: ${stats.averagePace} km/hr`
+                `Total Duration: ${stats.totalDurationMinutes} min\n` +
+                `Avg Distance: ${stats.averageDistance} km\n` +
+                `Avg Pace: ${stats.averagePace} km/hr\n` +
+                `Longest Run: ${stats.longestRun?.distanceKM || 0} km\n` +
+                `Fastest Run: ${stats.fastestRun?.distanceKM || 0} km in ${stats.fastestRun?.durationMinutes || 0} min\n` +
+                `This Week (${latestWeek?.period || "n/a"}): ${latestWeek?.totalDistance || 0} km\n` +
+                `This Month (${latestMonth?.period || "n/a"}): ${latestMonth?.totalDistance || 0} km\n` +
+                `This Year (${latestYear?.period || "n/a"}): ${latestYear?.totalDistance || 0} km`
             );
+
 
         } catch (error) {
             const apiMessage = error?.response?.data?.message;
