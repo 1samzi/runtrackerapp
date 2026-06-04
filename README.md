@@ -74,6 +74,10 @@ Update `.env` with your Discord token, the API URL, and the same `BOT_API_KEY` v
 | `!unlink` | Remove the Discord account link. |
 | `!ping` | Confirm the bot is online. |
 
+#### Example bot usage 
+<img width="814" height="694" alt="image" src="https://github.com/user-attachments/assets/d6ec9a14-26bd-44ab-a496-677d1ee070fc" />
+
+
 ## Example API endpoints
 
 ### User endpoints
