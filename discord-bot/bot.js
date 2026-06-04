@@ -14,6 +14,18 @@ const client = new Client({
     ]
 });
 
+const HELP_MESSAGE =
+    `RunTracker Bot Commands\n` +
+    `!help - Show this help message\n` +
+    `!register <username> - Create and link a new RunTracker account\n` +
+    `!createuser <username> - Same as !register\n` +
+    `!link <userId> - Link Discord to an existing RunTracker user\n` +
+    `!logrun <distanceKm> <durationMinutes> - Log a run, e.g. !logrun 5 30 or !logrun 5km 30min\n` +
+    `!stats - Show your running stats\n` +
+    `!unlink - Unlink your Discord account\n` +
+    `!ping - Check if the bot is responding`;
+
+
 // When bot is ready
 client.once("ready", () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -30,11 +42,12 @@ client.on("messageCreate", async (message) => {
         message.reply("Pong!");
     }
 
-    if (msg.startsWith("!logrun")) {
-        // Example: !logrun 5km
-        const run = msg.replace("!logrun", "").trim();
+    if (msg === "!help") {
+        message.reply(HELP_MESSAGE);
+    }
 
-        message.reply(`Run logged: ${run}`);
+    if (msg.startsWith("!logrun")) {
+        await logRun(message);
     }
 
     if (msg.startsWith("!register")) {
@@ -165,6 +178,49 @@ async function unlinkUser(message) {
         message.reply(`⚠️ Could not unlink account. ${apiMessage || ""}`.trim());
     }
 }
+
+async function logRun(message) {
+    try {
+        const match = message.content
+            .trim()
+            .match(/^!logrun\s+(\d+(?:\.\d+)?)\s*(?:km)?\s+(\d+)\s*(?:min|mins|minutes)?$/i);
+
+        if (!match) {
+            message.reply("Usage: `!logrun <distanceKm> <durationMinutes>` Example: `!logrun 5 30`");
+            return;
+        }
+
+        const distanceKM = Number(match[1]);
+        const durationMinutes = Number(match[2]);
+
+        if (distanceKM <= 0 || durationMinutes <= 0) {
+            message.reply("Distance and duration must both be greater than 0.");
+            return;
+        }
+
+        const res = await axios.post(
+            `${process.env.API_URL}/bot/runs`,
+            { distanceKM, durationMinutes },
+            {
+                headers: {
+                    "X-DISCORD-ID": message.author.id,
+                    "X-BOT-KEY": process.env.BOT_API_KEY
+                }
+            }
+        );
+
+        const run = res.data;
+        message.reply(
+            `✅ Run logged: ${run.distanceKM} km in ${run.durationMinutes} min` +
+            `${run.date ? ` on ${run.date}` : ""}`
+        );
+    } catch (error) {
+        const apiMessage = error?.response?.data?.message;
+        message.reply(`Could not log run. ${apiMessage || "Try !register or !link first."}`.trim());
+    }
+}
+
+
 
 // Login
 client.login(process.env.DISCORD_TOKEN);

@@ -1,11 +1,12 @@
 package com.example.runtrackerapp.service;
 
-import com.example.runtrackerapp.dto.UserCreateRequestDTO;
-import com.example.runtrackerapp.dto.UserResponseDTO;
-import com.example.runtrackerapp.dto.UserStatsResponseDTO;
+import com.example.runtrackerapp.dto.*;
+import com.example.runtrackerapp.mapper.RunMapper;
 import com.example.runtrackerapp.mapper.UserMapper;
 import com.example.runtrackerapp.model.DiscordUserLink;
+import com.example.runtrackerapp.model.Run;
 import com.example.runtrackerapp.model.User;
+import com.example.runtrackerapp.repository.RunRepository;
 import com.example.runtrackerapp.repository.UserRepository;
 import com.example.runtrackerapp.repository.DiscordUserLinkRepository;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -24,6 +26,8 @@ public class DiscordUserLinkService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserMapper userMapper;
+    private final RunRepository runRepository;
+    private final RunMapper runMapper;
     private final String botApiKey;
 
     public DiscordUserLinkService(
@@ -31,11 +35,15 @@ public class DiscordUserLinkService {
             UserRepository userRepository,
             UserService userService,
             UserMapper userMapper,
+            RunRepository runRepository,
+            RunMapper runMapper,
             @Value("${bot.api.key}") String botApiKey){
         this.repo = repo;
         this.userRepository = userRepository;
         this.userService = userService;
         this.userMapper = userMapper;
+        this.runRepository = runRepository;
+        this.runMapper = runMapper;
         this.botApiKey = botApiKey;
     }
 
@@ -94,6 +102,22 @@ public class DiscordUserLinkService {
 
         linkUser(discordId, existingUser);
         return userMapper.mapUserToUserResponseDTO(existingUser);
+    }
+
+    public RunResponseDTO logRun(String discordId, String providedBotApiKey, DiscordLogRunRequestDTO dto) {
+        validateBotApiKey(providedBotApiKey);
+
+        User linkedUser = getUserFromDiscordId(discordId);
+        Run run = new Run(
+                dto.getDistanceKM(),
+                dto.getDurationMinutes(),
+                LocalDate.now(),
+                0
+        );
+        run.setUser(linkedUser);
+
+        Run savedRun = runRepository.save(run);
+        return runMapper.runMapperToResponseDTO(savedRun);
     }
 
     public UserStatsResponseDTO getLinkedUserStats(String discordId, String providedBotApiKey) {

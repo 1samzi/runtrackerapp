@@ -1,8 +1,10 @@
 package com.example.runtrackerapp.controller;
 
 import com.example.runtrackerapp.dto.DiscordLinkExistingRequestDTO;
+import com.example.runtrackerapp.dto.DiscordLogRunRequestDTO;
 import com.example.runtrackerapp.dto.UserCreateRequestDTO;
 import com.example.runtrackerapp.service.DiscordUserLinkService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +43,15 @@ public class DiscordUserLinkController {
             @RequestBody DiscordLinkExistingRequestDTO dto
     ) {
         return ResponseEntity.ok(discordUserLinkService.linkExisting(discordId, botKey, dto.getUserId()));
+    }
+
+    @PostMapping("/runs")
+    public ResponseEntity<?> logRun(
+            @RequestHeader("X-DISCORD-ID") String discordId,
+            @RequestHeader("X-BOT-KEY") String botKey,
+            @Valid @RequestBody DiscordLogRunRequestDTO dto
+    ) {
+        return ResponseEntity.ok(discordUserLinkService.logRun(discordId, botKey, dto));
     }
 
     @GetMapping("/stats")
