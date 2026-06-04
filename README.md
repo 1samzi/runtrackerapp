@@ -1,97 +1,110 @@
-RunTracker is a REST API built with Java and Spring Boot for tracking running activities.
-The project focuses on learning and applying backend concepts such as API design that supports pagination, filtering, batch operations, and partial updates (PATCH), database integration, authentication, and automated testing.
+# RunTracker
 
-This project is currently in active development and is now moving into integration with a Discord bot.
+RunTracker is a backend-focused portfolio project for tracking running activity through a Spring Boot REST API and a Discord bot client. The project demonstrates practical API design, secure configuration, database integration, bot-to-API authentication, and user-facing command flows.
 
-**Setup & Configuration**
+## Why this project is portfolio-ready
 
-This project requires local configuration before running.
+This app is designed to show skills that matter in backend and full-stack-adjacent roles:
 
-1. Clone the Repository
-git clone https://github.com/your-username/runtracker.git
-cd runtracker
+- **REST API design:** user and run resources, filtering, pagination, partial updates, batch-style operations, and stats endpoints.
+- **Discord integration:** a Node.js bot lets users register, link accounts, log runs, and view stats without leaving Discord.
+- **Security-minded configuration:** credentials and bot API keys are loaded from environment variables instead of being committed to source control.
+- **Database-backed persistence:** Spring Data JPA with PostgreSQL for local development and H2 for tests.
+- **Automation-friendly setup:** Gradle and npm scripts make it easy to validate the Java API and Discord bot.
 
-3. Configure Application Properties
-Update application.properties or application.yml with your local database credentials:
+## Tech stack
 
-spring.datasource.url=jdbc:your_database_url
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+| Area | Tools |
+| --- | --- |
+| Backend API | Java 21, Spring Boot, Spring Web, Spring Security |
+| Persistence | Spring Data JPA, PostgreSQL, H2 for tests |
+| Discord bot | Node.js, discord.js, axios, dotenv |
+| Build/test | Gradle Wrapper, npm |
 
-spring.jpa.hibernate.ddl-auto=update
+## Project structure
 
-Adjust values based on your database setup.
+```text
+.
+├── build.gradle                 # Spring Boot dependencies and test configuration
+├── src/main/resources/          # API configuration
+└── discord-bot/                 # Discord bot client and npm project
+```
 
-3. Build and Run
-mvn clean install
-mvn spring-boot:run
+## Local setup
 
-The API should start on:
+### 1. Configure the Spring Boot API
 
-http://localhost:8080
+Create local environment variables for the database, Spring Security user, and bot shared secret:
 
-**Testing with Postman**
+```bash
+export DB_URL="jdbc:postgresql://localhost:5432/running_tracker"
+export DB_USERNAME="postgres"
+export DB_PASSWORD="your-password"
+export SPRING_SECURITY_USER="sam"
+export SPRING_SECURITY_PASSWORD="your-local-password"
+export BOT_API_KEY="replace-with-a-long-random-secret"
+```
 
-Currently, the API is tested locally using Postman.
+Then run the API:
 
-Steps:
+```bash
+./gradlew bootRun
+```
 
-Open Postman
+The API starts on `http://localhost:8080` by default.
 
-Create a new request
+### 2. Configure the Discord bot
 
-Set the request URL (example):
+```bash
+cd discord-bot
+cp .env.example .env
+npm install
+npm start
+```
 
-http://localhost:8080/api/runs
+Update `.env` with your Discord token, the API URL, and the same `BOT_API_KEY` value used by the Spring Boot API.
 
-Select the HTTP method (GET, POST, PUT, DELETE)
+## Discord bot commands
 
-Add required headers and body
+| Command | Description |
+| --- | --- |
+| `!help` | Show available commands. |
+| `!register <username>` | Create and link a RunTracker account. |
+| `!createuser <username>` | Alias for `!register`. |
+| `!link <userId>` | Link Discord to an existing RunTracker user. |
+| `!logrun <distanceKm> <durationMinutes>` | Log a run, for example `!logrun 5 30` or `!logrun 5km 30min`. |
+| `!stats` | Show total, weekly, monthly, yearly, longest-run, and fastest-run stats. |
+| `!unlink` | Remove the Discord account link. |
+| `!ping` | Confirm the bot is online. |
 
-Send the request
+## Example API endpoints
 
+### User endpoints
 
-## Example Endpoints
-
-### 👤 User Endpoints
-
-#### Get Users (with filtering & pagination)
-GET http://localhost:8080/users
-
-Optional query params:
+```http
 GET /users?page=0&size=10
+GET /users/{id}/stats
+POST /users
+```
 
----
+Example create-user body:
 
-#### Get User Stats
-GET http://localhost:8080/users/{id}/stats
-
----
-
-#### Create User
-POST http://localhost:8080/users
-
-Example body:
 ```json
 {
   "name": "John Doe",
   "email": "john@example.com"
 }
 ```
-## 🏃 Run Endpoints
 
-#### Get Runs (with filtering & pagination)
-GET http://localhost:8080/runs
+### Run endpoints
 
-Example with filter:
+```http
 GET /runs?minDistance=5&page=0&size=10
+POST /runs
+```
 
----
+Example create-run body:
 
-#### Create Run
-POST http://localhost:8080/runs
-
-Example body:
 ```json
 {
   "distance": 5.0,
@@ -100,3 +113,26 @@ Example body:
 }
 ```
 
+## Testing and validation
+
+```bash
+./gradlew test
+cd discord-bot && npm test
+```
+
+## Resume talking points
+
+Use these bullet points when describing the project:
+
+- Built a Java Spring Boot REST API for logging running activity, retrieving user stats, and supporting filterable/paginated run queries.
+- Integrated a Discord bot client with the backend so users can register, link accounts, log runs, and view progress from chat commands.
+- Secured bot-to-API calls with a shared API key header and moved sensitive configuration to environment variables.
+- Added validation-friendly project documentation and runnable setup instructions for API and bot components.
+
+## Suggested next improvements
+
+- Add controller/service/repository test coverage for every public endpoint.
+- Add OpenAPI/Swagger documentation for the REST API.
+- Add Docker Compose for PostgreSQL plus the API for one-command local demos.
+- Add CI with Gradle and npm validation on every pull request.
+- Add screenshots or a short GIF showing a Discord command logging a run and returning stats.
