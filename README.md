@@ -2,9 +2,6 @@
 
 RunTracker is a backend-focused portfolio project for tracking running activity through a Spring Boot REST API and a Discord bot client. The project demonstrates practical API design, secure configuration, database integration, bot-to-API authentication, and user-facing command flows.
 
-## Why this project is portfolio-ready
-
-This app is designed to show skills that matter in backend and full-stack-adjacent roles:
 
 - **REST API design:** user and run resources, filtering, pagination, partial updates, batch-style operations, and stats endpoints.
 - **Discord integration:** a Node.js bot lets users register, link accounts, log runs, and view stats without leaving Discord.
@@ -120,19 +117,3 @@ Example create-run body:
 cd discord-bot && npm test
 ```
 
-## Resume talking points
-
-Use these bullet points when describing the project:
-
-- Built a Java Spring Boot REST API for logging running activity, retrieving user stats, and supporting filterable/paginated run queries.
-- Integrated a Discord bot client with the backend so users can register, link accounts, log runs, and view progress from chat commands.
-- Secured bot-to-API calls with a shared API key header and moved sensitive configuration to environment variables.
-- Added validation-friendly project documentation and runnable setup instructions for API and bot components.
-
-## Suggested next improvements
-
-- Add controller/service/repository test coverage for every public endpoint.
-- Add OpenAPI/Swagger documentation for the REST API.
-- Add Docker Compose for PostgreSQL plus the API for one-command local demos.
-- Add CI with Gradle and npm validation on every pull request.
-- Add screenshots or a short GIF showing a Discord command logging a run and returning stats.
